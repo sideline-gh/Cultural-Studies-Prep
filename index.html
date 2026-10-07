@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cultural Studies Flashcards</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card-bg: #ffffff;
+    --card-back: #fcf8ee;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-soft: #eff6ff;
+    --ok: #10b981;
+    --ok-soft: #ecfdf5;
+    --warn: #f59e0b;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-back: #262319;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --accent-soft: #1e3a8a;
+      --ok: #10b981;
+      --ok-soft: #064e3b;
+      --warn: #f59e0b;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* SCREEN VIEWS */
+  .view {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    animation: fadeIn 0.25s ease-out;
+  }
+
+  .view.active {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* HOME / START SCREEN */
+  .welcome-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+
+  .welcome-card h1 {
+    margin: 0 0 8px 0;
+    font-size: 1.65rem;
+    color: var(--ink);
+  }
+
+  .welcome-card p {
+    margin: 0 0 24px 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .filters-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+
+  .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-item label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  select, input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 0.95rem;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    cursor: pointer;
+  }
+
+  .toggle-row span {
+    font-size: 0.95rem;
+  }
+
+  .toggle-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: var(--accent);
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    transition: transform 0.1s, background-color 0.2s;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  /* DECK HEADER & PROGRESS */
+  .deck-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .btn-icon {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-icon:hover {
+    background: var(--line);
+  }
+
+  .progress-info {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+
+  /* 3D FLASHCARD CONTAINER */
+  .card-container {
+    perspective: 1000px;
+    width: 100%;
+    min-height: 280px;
+    height: 48vh;
+    max-height: 400px;
+    margin-bottom: 20px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    border-radius: 20px;
+  }
+
+  .card-container.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  .card-front {
+    background: var(--card-bg);
+  }
+
+  .card-back {
+    background: var(--card-back);
+    transform: rotateY(180deg);
+  }
+
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+
+  .tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  .card-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .card-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: pre-line;
+    word-break: break-word;
+  }
+
+  .card-back .card-text {
+    font-size: 1.05rem;
+    font-weight: 400;
+    text-align: left;
+  }
+
+  .card-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* DECK CONTROLS */
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .btn-action {
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--card-bg);
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+
+  .btn-action:active {
+    transform: scale(0.97);
+  }
+
+  .btn-know {
+    border-color: var(--ok);
+    color: var(--ok);
+    background: var(--ok-soft);
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-nav {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--card-bg);
+    color: var(--ink);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .stats-summary {
+    text-align: center;
+    padding: 24px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- 1. START / FILTER VIEW -->
+  <div id="start-view" class="view active">
+    <div class="welcome-card">
+      <h1>Cultural Studies</h1>
+      <p>Master Weeks 1–4 Flashcards</p>
+
+      <div class="filters-group">
+        <div class="filter-item">
+          <label for="filter-week">Select Week</label>
+          <select id="filter-week">
+            <option value="all">All Weeks (1–4)</option>
+            <option value="1">Week 1 – Foundations & Language</option>
+            <option value="2">Week 2 – Semiotics & Anatomy</option>
+            <option value="3">Week 3 – Nomadism & Tengrism</option>
+            <option value="4">Week 4 – Medieval Turkic Culture</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="filter-type">Card Type</label>
+          <select id="filter-type">
+            <option value="all">All Types</option>
+            <option value="Term">Terms & Concepts</option>
+            <option value="Person">People & Works</option>
+            <option value="Quote">Quotes & Proverbs</option>
+            <option value="List">Lists & Models</option>
+          </select>
+        </div>
+
+        <label class="toggle-row">
+          <span>Answer First (Reverse Mode)</span>
+          <input type="checkbox" id="toggle-reverse">
+        </label>
+
+        <label class="toggle-row">
+          <span>Shuffle Card Deck</span>
+          <input type="checkbox" id="toggle-shuffle" checked>
+        </label>
+
+        <label class="toggle-row">
+          <span>Hide Cards Already Known</span>
+          <input type="checkbox" id="toggle-hide-known">
+        </label>
+      </div>
+
+      <button id="btn-start" class="btn-primary">Cultural Studies Cards</button>
+    </div>
+  </div>
+
+  <!-- 2. DECK STUDY VIEW -->
+  <div id="study-view" class="view">
+    <div class="deck-header">
+      <button id="btn-back" class="btn-icon">← Menu</button>
+      <div id="progress-text" class="progress-info">Card 1 of 10</div>
+      <button id="btn-reset-known" class="btn-icon" style="color:var(--warn)">Reset Progress</button>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill"></div>
+    </div>
+
+    <!-- Interactive Card -->
+    <div id="flashcard" class="card-container">
+      <div class="card-inner">
+        <!-- Front -->
+        <div class="card-face card-front">
+          <div class="card-meta">
+            <span id="card-week-front">WEEK 1</span>
+            <span id="card-type-front" class="tag">TERM</span>
+          </div>
+          <div class="card-body">
+            <div id="card-text-front" class="card-text">Front Text</div>
+          </div>
+          <div class="card-hint">Tap card to flip</div>
+        </div>
+        <!-- Back -->
+        <div class="card-face card-back">
+          <div class="card-meta">
+            <span id="card-week-back">WEEK 1</span>
+            <span id="card-type-back" class="tag">ANSWER</span>
+          </div>
+          <div class="card-body">
+            <div id="card-text-back" class="card-text">Back Text</div>
+          </div>
+          <div class="card-hint">Tap card to flip back</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Controls -->
+    <div class="action-buttons">
+      <button id="btn-need-review" class="btn-action">
+        ✕ Still Learning
+      </button>
+      <button id="btn-know" class="btn-action btn-know">
+        ✓ Got It Right
+      </button>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-buttons">
+      <button id="btn-prev" class="btn-nav">← Previous</button>
+      <button id="btn-flip" class="btn-nav">Flip Card</button>
+      <button id="btn-next" class="btn-nav">Next →</button>
+    </div>
+  </div>
+
+  <!-- 3. DECK COMPLETE VIEW -->
+  <div id="completed-view" class="view">
+    <div class="stats-summary">
+      <h2>🎉 Deck Completed!</h2>
+      <p style="color:var(--muted); margin-bottom: 24px;">You've reviewed all cards matching your filter criteria.</p>
+      <button id="btn-restart" class="btn-primary" style="margin-bottom:12px;">Study Again</button>
+      <button id="btn-change-filters" class="btn-action" style="width:100%;">Change Filters</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============ CARD DATASET ============ */
+const CARDS = [
+  /* WEEK 1 */
+  {w:1,t:"Term",q:"Origin of the word “culture”",a:"Latin root colere = to inhabit, cultivate, or honor.\nCicero: cultura animi (“cultivation of the soul”).\nCorresponds to the Greek concept of Paideia."},
+  {w:1,t:"Term",q:"Paideia",a:"Greek concept: the formation and education of a citizen in the classical Greek polis.\nGoal: cultivate reason, appreciation of beauty, measure, and justice."},
+  {w:1,t:"Term",q:"Culture in the Middle Ages – Western Christianity",a:"Focused on God, the soul, salvation, and overcoming sin.\nPrioritized sacred texts over empirical knowledge."},
+  {w:1,t:"Person",q:"Medieval Islamic culture – scholars and emphases",a:"Scholars: Al-Farabi, Ibn Sina, Al-Biruni.\nEmphasized the unity of religion and everyday life.\nStrong advances in falsafa (philosophy), medicine, mathematics, and astronomy."},
+  {w:1,t:"Term",q:"Renaissance view of culture",a:"Centered on humanism, individualism, human dignity, and creativity.\nRevival of classical ideals: beauty, harmony, secular life."},
+  {w:1,t:"Term",q:"Enlightenment view of culture (Voltaire, Montesquieu, Rousseau)",a:"Prioritized reason, science, education, freedom, equality, and civic rights over religious dogmatism."},
+  {w:1,t:"Term",q:"Culture vs. Civilization",a:"Culture = the internal dimension of society (values, norms, traditions, ethics, beliefs).\nCivilization = the external expressions (institutions, material achievements, social organization)."},
+  {w:1,t:"Term",q:"Culture and civilization in the 18th–19th centuries vs. today",a:"18th–19th c.: culture was equated with civilization, forming a hierarchy of “cultured” vs. “uncultured” societies.\nModern cultural studies: culture is plural and diverse."},
+  {w:1,t:"Person",q:"Edward Burnett Tylor – definition of culture",a:"Primitive Culture (1871): culture is “that complex whole which includes knowledge, belief, art, law, morals, custom, and any other capabilities and habits acquired by man as a member of society.”\n(Also introduced animism.)"},
+  {w:1,t:"Term",q:"UNESCO definition of culture (1982 Mexico Declaration)",a:"The distinct spiritual, material, intellectual, and emotional features characterizing a society.\nEncompasses arts, lifestyles, value systems, traditions, and beliefs."},
+  {w:1,t:"Person",q:"Leslie Alvin White (1900–1975)",a:"American anthropologist.\nIntroduced the term and scientific field of Culturology / Cultural Studies."},
+  {w:1,t:"Person",q:"Kroeber & Kluckhohn (1952)",a:"Culture: A Critical Review of Concepts and Definitions.\nCataloged 200+ definitions of culture in 8 approaches:\nTopical, Historical, Behavioral, Normative, Functional, Mental, Structural, Symbolic."},
+  {w:1,t:"Term",q:"Cultural relativism (Franz Boas, Margaret Mead)",a:"Understanding beliefs and behaviors from the perspective of their own culture rather than judging them by one’s own."},
+  {w:1,t:"Term",q:"Symbolic theory of culture (Clifford Geertz, Victor Turner)",a:"Culture is a “text” that must be interpreted through its symbols."},
+  {w:1,t:"Term",q:"Sociobiological view of culture (Richard Dawkins)",a:"Introduced memes as the cultural parallel to biological genes."},
+  {w:1,t:"List",q:"Characteristics of culture (“The Big C”)",a:"Learned · Shared · Symbolic · Holistic · Integrated"},
+  {w:1,t:"Term",q:"Morphology of culture",a:"Branch of cultural studies analyzing the structures, forms, and typology of culture as a social phenomenon."},
+  {w:1,t:"List",q:"Core components of culture",a:"Values: ideas about what is important in life.\nNorms: expectations of how people should behave in various situations.\nSanctions: social-control mechanisms used to enforce norms."},
+  {w:1,t:"Term",q:"Material vs. non-material culture",a:"Material: tangible, concrete man-made objects (tools, buildings, furniture, books).\nNon-material: intangible, abstract elements (customs, traditions, beliefs, language, values, laws)."},
+  {w:1,t:"Term",q:"Folk culture",a:"Traditional customs, oral traditions, crafts."},
+  {w:1,t:"Term",q:"Mass culture",a:"Commercial, media-driven cultural products for a general audience."},
+  {w:1,t:"Term",q:"High / Elite culture",a:"Complex artistic and intellectual expressions created for educated elites."},
+  {w:1,t:"Term",q:"Subculture",a:"Groups sharing distinct values and norms that vary from mainstream society.\nExamples: gaming subcultures, fan cultures."},
+  {w:1,t:"Term",q:"Counterculture",a:"Groups whose values and mores directly oppose those of established society.\nExample: Voluntary Human Extinction Movement."},
+  {w:1,t:"Term",q:"Ecological culture",a:"Practices focused on sustainable living and climate activism."},
+  {w:1,t:"Term",q:"Digital culture",a:"Communication through digital technology, AI, online art, virtual spaces, and digital subcultures."},
+  {w:1,t:"Term",q:"Language of culture",a:"A system of signs, symbols, forms, and texts that allows individuals to communicate and navigate cultural space."},
+  {w:1,t:"Term",q:"Sapir–Whorf Hypothesis (Linguistic Relativity)",a:"Proposed by Edward Sapir and Benjamin Whorf.\nCore idea: the structure and vocabulary of a language influence how its speakers perceive the world, think, act, and shape culture.\nExamples: Inuit snow terms; Kazakh Ainalaiyn."},
+  {w:1,t:"Term",q:"Example: Eskimo / Inuit words for snow",a:"Dialects have dozens of specific terms, e.g.:\npukak = crystalline powder snow\nmatsaaruti = wet snow\nReflects environmental adaptation (Sapir–Whorf)."},
+  {w:1,t:"Term",q:"Example: Kazakh language concepts",a:"Genderless structure, deep politeness levels, extensive kinship terms.\nUntranslatable terms:\nAinalaiyn = affection / care\nBauyrym = kinship / closeness\nQut = blessing / prosperity\nAmanat = sacred trust\nHorse/camel metaphors reflect pastoral life, e.g. Üzengiles joldas = “stirrup companion”."},
+  {w:1,t:"Term",q:"Ainalaiyn",a:"Kazakh untranslatable term: affection / care. (Example for Sapir–Whorf.)"},
+  {w:1,t:"Term",q:"Bauyrym",a:"Kazakh term: kinship / closeness."},
+  {w:1,t:"Term",q:"Qut",a:"Kazakh term: blessing / prosperity."},
+  {w:1,t:"Term",q:"Amanat",a:"Kazakh term: sacred trust."},
+  {w:1,t:"Term",q:"Üzengiles joldas",a:"“Stirrup companion” – a Kazakh horse metaphor reflecting pastoral life."},
+  {w:1,t:"Term",q:"Non-verbal communication",a:"Gestures, body language, facial expressions, and use of physical space.\nThey vary across cultural contexts."},
+
+  /* WEEK 2 */
+  {w:2,t:"Term",q:"Semiotics",a:"The scientific study of signs, symbols, and signification."},
+  {w:2,t:"Term",q:"Semiotics of culture",a:"Studies culture as a system of human symbolic activity and sign creation that imparts meaning to the world."},
+  {w:2,t:"Person",q:"Ferdinand de Saussure",a:"Course in General Linguistics; European tradition of semiology.\nLanguage is a system composed of signs.\nSign = Signifier + Signified."},
+  {w:2,t:"Term",q:"Signifier (Saussure)",a:"The physical/material form of a sign: sounds, written marks, visual image."},
+  {w:2,t:"Term",q:"Signified (Saussure)",a:"The mental concept or meaning associated with the signifier."},
+  {w:2,t:"Person",q:"Charles Sanders Peirce",a:"American Pragmatic tradition.\nSemiosis = a dynamic process where meaning develops through an Interpretant connecting a sign to an object.\nClassified signs into Icon, Index, Symbol."},
+  {w:2,t:"Term",q:"Interpretant (Peirce)",a:"The mental tool in the mind of the interpreter that connects a sign to an object during semiosis."},
+  {w:2,t:"Term",q:"Icon (Peirce)",a:"A sign that physically resembles what it represents.\nExamples: photographs, pictograms."},
+  {w:2,t:"Term",q:"Index (Peirce)",a:"A sign with a direct, physical or causal link to its object.\nExamples: smoke = fire; footprints = presence."},
+  {w:2,t:"Term",q:"Symbol (Peirce)",a:"A sign linked to its meaning purely through learned social convention or rules.\nExamples: words, traffic lights, national flags."},
+  {w:2,t:"Person",q:"Charles Morris – three branches of semiotics",a:"Semantics: relation between signs and objects.\nSyntactics: relations between signs.\nPragmatics: relation between signs and interpreters."},
+  {w:2,t:"Person",q:"Julia Kristeva",a:"Developed Semanalysis: the study of textual meaning and signifying activity within texts."},
+  {w:2,t:"Term",q:"Cultural code",a:"A framework of images, associations, and stereotypes (mentality) that provides the key to understanding a culture."},
+  {w:2,t:"List",q:"Evolution of global cultural codes",a:"1. Preliterate (Traditional)\n2. Written (Book)\n3. Screen\n4. Digital"},
+  {w:2,t:"Term",q:"Conventional signs",a:"Socially agreed-upon symbols with no inherent resemblance to objects.\nExamples: mathematical symbols +, −, %."},
+  {w:2,t:"Person",q:"Roland Barthes (Mythologies) – three levels of meaning",a:"Denotation → Connotation → Myth.\nHow culture generates meanings."},
+  {w:2,t:"Term",q:"Denotation (Barthes)",a:"Literal, primary descriptive meaning of a sign.\nExample: Rose = a specific flower."},
+  {w:2,t:"Term",q:"Connotation (Barthes)",a:"Secondary meanings created by linking signs to wider cultural codes and feelings.\nExample: Rose = romance, passion."},
+  {w:2,t:"Term",q:"Myth (Barthes)",a:"Connotations that become naturalized and accepted as “fact” or “universal.”\nExample: the Eiffel Tower naturally symbolizing romance."},
+  {w:2,t:"Person",q:"Olzhas Suleimenov – AZ i IA",a:"Re-examined The Tale of Igor’s Campaign using textological analysis.\nHighlights Slavic and Turkic dual identities."},
+  {w:2,t:"Term",q:"Anatomy of culture",a:"Studies the internal structural dimensions and spaces within cultural systems."},
+  {w:2,t:"List",q:"Three axes of culture",a:"Cognitive axis (X): knowledge, ideas.\nValue axis (Y): values, moral judgements.\nRegulatory axis (Z): rules, norms, laws."},
+  {w:2,t:"List",q:"Intersecting planes of cultural spheres",a:"Spiritual culture (X–Y)\nTechnological culture (X–Z)\nSocial culture (Y–Z)"},
+  {w:2,t:"Term",q:"Animism",a:"Belief that natural objects, plants, animals, and natural phenomena possess a soul."},
+  {w:2,t:"Term",q:"Fetishism",a:"Worship of inanimate objects believed to possess supernatural protective powers."},
+  {w:2,t:"Term",q:"Totemism",a:"Belief in a mystical kinship connecting a group with an animal, plant, or object."},
+  {w:2,t:"Term",q:"Pantheism",a:"Belief equating God with the universe and nature itself."},
+  {w:2,t:"Term",q:"Deism",a:"Belief in a supreme creator who set the universe in motion but does not intervene directly."},
+  {w:2,t:"Term",q:"Monotheism",a:"Belief in a single, supreme God."},
+  {w:2,t:"List",q:"Types of myth",a:"Creation myths (cosmogony)\nFoundation / Origin myths\nEnd-time (Eschatological) myths"},
+  {w:2,t:"Quote",q:"Confucius – the Golden Rule",a:"“Do not do to others what you do not want done to yourself.”"},
+  {w:2,t:"Quote",q:"Immanuel Kant – Categorical Imperative",a:"“Act only according to that maxim whereby you can at the same time will that it should become a universal law.”"},
+  {w:2,t:"Term",q:"Kant’s moral paradox (On a Supposed Right to Lie)",a:"Duty to tell the truth is absolute.\nLying to a murderer asking for your friend is morally wrong, as truthfulness is an unconditional duty."},
+
+  /* WEEK 3 */
+  {w:3,t:"Term",q:"Nomadism as a cultural system",a:"A traditional way of life based on seasonal mobility and a pastoral economy, moving livestock across pastures."},
+  {w:3,t:"List",q:"Core characteristics of nomadism",a:"Extensive animal husbandry\nSeasonal migration\nMobile material culture\nEco-centric worldview"},
+  {w:3,t:"List",q:"Classifications of nomadism",a:"Nomadic: continuous movement with livestock.\nSemi-nomadic: warm season migration, fixed winters.\nSemi-settled: agriculture mixed with pastoralism."},
+  {w:3,t:"Term",q:"Yaylak (pastoralism)",a:"Summer highland pasture usage."},
+  {w:3,t:"List",q:"Dwellings compared",a:"Tipi: North American Plains\nIgloo: Arctic\nBedouin tent (Bayt al-shar)\nYurt (Kiiz ui): Central Asian nomads"},
+  {w:3,t:"Term",q:"The yurt (Kiiz ui)",a:"Portable, lightweight, easily assembled and disassembled home of the nomads."},
+  {w:3,t:"Term",q:"Shanyrak",a:"Wooden dome of the yurt.\nSymbolizes the sun, family unity, and the universe."},
+  {w:3,t:"Term",q:"Uyk",a:"Roof poles of the yurt – symbolic sunbeams radiating from the shanyrak."},
+  {w:3,t:"Term",q:"Tör",a:"Place of honor opposite the entrance, for esteemed guests and elders."},
+  {w:3,t:"Term",q:"Hearth (Oshaq)",a:"Sacred central fire: cooking, warmth, and ritual purification."},
+  {w:3,t:"Term",q:"On jaq",a:"Male / sacred side of the yurt (right side).\nStores weapons, horse tack, and equipment."},
+  {w:3,t:"Term",q:"Sol jaq",a:"Female side of the yurt (left side).\nStores kitchen utensils, food, and domestic goods."},
+  {w:3,t:"Term",q:"Aq bosaga",a:"The sacred threshold of the yurt."},
+  {w:3,t:"Term",q:"Koshkar muyiz",a:"“Ram’s horns” ornament.\nSymbolizes vitality, prosperity, pastoral wealth."},
+  {w:3,t:"Term",q:"Qus tumsyq",a:"“Bird’s beak” ornament.\nSymbolizes freedom and the celestial sphere."},
+  {w:3,t:"Term",q:"Aishyq gul",a:"“Moonflower” ornament.\nSymbolizes natural cycles and nomadic time perception."},
+  {w:3,t:"Term",q:"“Golden People” (Altyn Adam)",a:"Artifacts from Issyk, Taksai, and Shilikty burial mounds.\nDemonstrates ancient metallurgy and animal-style art."},
+  {w:3,t:"Person",q:"Digital nomadism",a:"Coined by Tsugio Makimoto & David Manners (1997).\nRemote workers traveling with digital technologies."},
+  {w:3,t:"Term",q:"Tengrism",a:"Pre-Islamic worldview of Eurasian nomads, centered on harmony with nature and the cosmos."},
+  {w:3,t:"Term",q:"Tengri",a:"Supreme deity of the Blue Sky, ruler of the upper celestial realm."},
+  {w:3,t:"Term",q:"Umai",a:"Female deity protecting women, children, childbirth, and fertility."},
+  {w:3,t:"Term",q:"Zher-Su (Yduk Yer-Su)",a:"Sacred land-water deity governing the middle, earthly world."},
+  {w:3,t:"Term",q:"Erlik (Erklig)",a:"Deity and ruler of the underworld, associated with death and judgment."},
+  {w:3,t:"Term",q:"Cult of Ancestors (Awa)",a:"High reverence for the spirits of the deceased."},
+  {w:3,t:"Term",q:"Role of fire / hearth in Tengrism",a:"Spiritual purification (alas) to dispel bad energy."},
+  {w:3,t:"Term",q:"Baksy",a:"Traditional shaman/healer; mediator between humans and spirits.\nUses the kobyz / kyl-kobyz instrument."},
+  {w:3,t:"Term",q:"Orkhon–Yenisei inscriptions",a:"Runic monuments (Bilge Kagan, Kul Tigin) recording ancient Turkic statecraft."},
+  {w:3,t:"Quote",q:"Kosho Tsaidam stele (Orkhon inscriptions)",a:"“When the blue sky above and brown earth below were created, human beings were created between them…”"},
+  {w:3,t:"Person",q:"Anacharsis (6th century BCE)",a:"Saka/Scythian philosopher, ranked among the Seven Sages of Antiquity."},
+  {w:3,t:"Quote",q:"Anacharsis on drunkenness",a:"“A view of the unseemly actions of drunken men is the most effectual dissuasive from wine.”"},
+  {w:3,t:"Quote",q:"Anacharsis’ reply to Greek insults",a:"“My country is a disgrace to me, but you are a disgrace to your country.”"},
+  {w:3,t:"Person",q:"Toxaris",a:"Scythian scholar known as the “Foreign Physician” in Athens.\nFeatured in Lucian’s dialogues."},
+  {w:3,t:"Term",q:"Story of Abauchas & Gyndanes (Lucian’s Toxaris)",a:"Abauchas saved his friend Gyndanes from fire over his own family, reasoning a true friend is irreplaceable."},
+
+  /* WEEK 4 */
+  {w:4,t:"List",q:"Major urban centers of the Karakhanid Khanate",a:"Otrar (Farab), Taraz, Suyab, Balasagun, Sygnak, Yangikent, Saraishyq."},
+  {w:4,t:"List",q:"Functions of medieval cities",a:"Trade; Silk Road communication hubs; craft manufacturing; administrative centers."},
+  {w:4,t:"List",q:"Tripartite structure of medieval cities",a:"Citadel: central fortified fortress.\nShahristan: urban core with residences & admin.\nRabad: outer suburbs housing artisans & markets."},
+  {w:4,t:"List",q:"Urban infrastructure additions",a:"Mosques, public baths (hammams), bazaars, trade caravanserais."},
+  {w:4,t:"List",q:"Crafts & currency in Karakhanid cities",a:"Crafts: ceramics, blacksmithing, stone/bone carving.\nCurrency: gold dinars and silver dirhams."},
+  {w:4,t:"Term",q:"13th-century transformation of Central Asian cities",a:"Mongol invasions disrupted trade; recovery began in mid-13th century."},
+  {w:4,t:"Person",q:"Abu Nasr Muhammad al-Farabi (870–950 CE)",a:"Polymath born in Otrar (Farab).\nKnown as the “Second Teacher” (after Aristotle)."},
+  {w:4,t:"Person",q:"Al-Farabi – Al-Madina al-Fadila",a:"Treatise on the Virtuous City.\nExplores political philosophy, social justice, and the ideal state."},
+  {w:4,t:"Person",q:"Al-Farabi – Kitab al-Musiqa al-Kabir",a:"The Great Book of Music.\nMajor foundational treatise on music theory."},
+  {w:4,t:"Person",q:"Yusuf Balasaguni (11th century)",a:"Poet, philosopher, and statesman.\nAuthor of Kutadgu Bilig."},
+  {w:4,t:"Person",q:"Kutadgu Bilig (1069 CE)",a:"“Wisdom of Royal Glory”.\nDidactic ethical poem in Turkic offering guidance on governance and statecraft."},
+  {w:4,t:"List",q:"Four allegorical characters of Kutadgu Bilig",a:"Kün-Togdı (Ruler) → Justice\nAy-Toldı (Vizier) → Fortune / Happiness\nÖgdülmiş (Wise Adviser) → Wisdom / Reason\nOdgurmış (Ascetic) → Moderation / Contentment"},
+  {w:4,t:"Person",q:"Mahmud al-Kashgari (11th century)",a:"Turkic linguist.\nAuthor of Dīwān Lughāt al-Turk."},
+  {w:4,t:"Person",q:"Dīwān Lughāt al-Turk (1072–1074 CE)",a:"First comprehensive dictionary and encyclopedia of Turkic dialects."},
+  {w:4,t:"Quote",q:"“The mouth of the one who says ‘fire’ does not burn.”",a:"Saying a word doesn’t cause harm; used when apologizing for words spoken."},
+  {w:4,t:"Quote",q:"“The fish is in the water, but its eyes are outside.”",a:"Pretending not to notice something obvious."},
+  {w:4,t:"Quote",q:"“Better to be the head of a calf than the foot of a bull.”",a:"Independence is preferable to subordinate dependency."},
+  {w:4,t:"Quote",q:"“Give milk to the one who does not give you water.”",a:"Respond to harm or bad behavior with kindness."},
+  {w:4,t:"Quote",q:"“If you cannot bite a stone, you should kiss it.”",a:"Adapt flexibly and act strategically to achieve goals."},
+  {w:4,t:"Term",q:"Sufism (Tasawwuf)",a:"Mystical dimension of Islam focused on spiritual truth, divine love, and devotion."},
+  {w:4,t:"Person",q:"Farid ud-Din Attar – The Conference of the Birds",a:"Sufi allegorical poem: birds searching for the Simorgh realize they collectively embody it."},
+  {w:4,t:"List",q:"Major Sufi orders in Central Asia",a:"Yasawiyya (Khoja Ahmed Yasawi)\nNaqshbandi (Bahauddin Naqshband)\nQadiriyya"},
+  {w:4,t:"Quote",q:"Bahauddin Naqshband",a:"“Do not let the people live in hardship, ease their life.”"},
+  {w:4,t:"Person",q:"Khoja Ahmed Yasawi (1106–1166 CE)",a:"Turkic Sufi mystic; founder of Yasawiyya.\nWrote Dīwān-i Hikmet."},
+  {w:4,t:"Person",q:"Dīwān-i Hikmet (Book of Wisdom)",a:"Spiritual poems written in accessible Turkic vernacular to spread Islamic ethics."},
+  {w:4,t:"Term",q:"Yasawi mausoleum (Turkistan)",a:"Built by Timur; major pilgrimage center (ziyarat) in Central Asia."}
+];
+
+// Assign IDs
+CARDS.forEach((c, idx) => c.id = idx);
+
+/* ============ APP STATE & STORAGE ============ */
+const STORAGE_KEY = "cultural_studies_known_cards";
+let knownSet = new Set();
+
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) knownSet = new Set(JSON.parse(saved));
+} catch(e) {}
+
+let deck = [];
+let currentIndex = 0;
+let isFlipped = false;
+let isReverseMode = false;
+
+/* ============ DOM ELEMENTS ============ */
+const viewStart = document.getElementById('start-view');
+const viewStudy = document.getElementById('study-view');
+const viewCompleted = document.getElementById('completed-view');
+
+const flashcard = document.getElementById('flashcard');
+const textFront = document.getElementById('card-text-front');
+const textBack = document.getElementById('card-text-back');
+const weekFront = document.getElementById('card-week-front');
+const weekBack = document.getElementById('card-week-back');
+const typeFront = document.getElementById('card-type-front');
+const typeBack = document.getElementById('card-type-back');
+
+const progressText = document.getElementById('progress-text');
+const progressBar = document.getElementById('progress-bar');
+
+/* ============ METHODS ============ */
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...knownSet]));
+  } catch(e) {}
+}
+
+function showView(view) {
+  [viewStart, viewStudy, viewCompleted].forEach(v => v.classList.remove('active'));
+  view.classList.add('active');
+}
+
+function startStudySession() {
+  const selectedWeek = document.getElementById('filter-week').value;
+  const selectedType = document.getElementById('filter-type').value;
+  const hideKnown = document.getElementById('toggle-hide-known').checked;
+  const doShuffle = document.getElementById('toggle-shuffle').checked;
+  isReverseMode = document.getElementById('toggle-reverse').checked;
+
+  deck = CARDS.filter(c => {
+    if (selectedWeek !== 'all' && String(c.w) !== selectedWeek) return false;
+    if (selectedType !== 'all' && c.t !== selectedType) return false;
+    if (hideKnown && knownSet.has(c.id)) return false;
+    return true;
+  });
+
+  if (deck.length === 0) {
+    alert("No cards match your current criteria!");
+    return;
+  }
+
+  if (doShuffle) {
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+  }
+
+  currentIndex = 0;
+  showView(viewStudy);
+  renderCurrentCard();
+}
+
+function renderCurrentCard() {
+  if (currentIndex >= deck.length) {
+    showView(viewCompleted);
+    return;
+  }
+
+  const card = deck[currentIndex];
+  isFlipped = false;
+  flashcard.classList.remove('flipped');
+
+  const frontContent = isReverseMode ? card.a : card.q;
+  const backContent = isReverseMode ? card.q : card.a;
+
+  textFront.textContent = frontContent;
+  textBack.textContent = backContent;
+
+  weekFront.textContent = `WEEK ${card.w}`;
+  weekBack.textContent = `WEEK ${card.w}`;
+
+  typeFront.textContent = card.t;
+  typeBack.textContent = card.t;
+
+  const isKnown = knownSet.has(card.id);
+  const knowBtn = document.getElementById('btn-know');
+  knowBtn.style.opacity = isKnown ? '0.7' : '1';
+
+  // Progress update
+  progressText.textContent = `Card ${currentIndex + 1} of ${deck.length}`;
+  const pct = ((currentIndex + 1) / deck.length) * 100;
+  progressBar.style.width = `${pct}%`;
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  flashcard.classList.toggle('flipped', isFlipped);
+}
+
+function nextCard() {
+  if (currentIndex < deck.length - 1) {
+    currentIndex++;
+    renderCurrentCard();
+  } else {
+    showView(viewCompleted);
+  }
+}
+
+function prevCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderCurrentCard();
+  }
+}
+
+function markKnown(known) {
+  const currentCard = deck[currentIndex];
+  if (known) {
+    knownSet.add(currentCard.id);
+  } else {
+    knownSet.delete(currentCard.id);
+  }
+  saveProgress();
+  nextCard();
+}
+
+/* ============ EVENT LISTENERS ============ */
+document.getElementById('btn-start').addEventListener('click', startStudySession);
+flashcard.addEventListener('click', flipCard);
+document.getElementById('btn-flip').addEventListener('click', flipCard);
+
+document.getElementById('btn-next').addEventListener('click', nextCard);
+document.getElementById('btn-prev').addEventListener('click', prevCard);
+
+document.getElementById('btn-know').addEventListener('click', () => markKnown(true));
+document.getElementById('btn-need-review').addEventListener('click', () => markKnown(false));
+
+document.getElementById('btn-back').addEventListener('click', () => showView(viewStart));
+document.getElementById('btn-restart').addEventListener('click', startStudySession);
+document.getElementById('btn-change-filters').addEventListener('click', () => showView(viewStart));
+
+document.getElementById('btn-reset-known').addEventListener('click', () => {
+  if (confirm("Reset all marked progress?")) {
+    knownSet.clear();
+    saveProgress();
+    renderCurrentCard();
+  }
+});
+
+// Keyboard Accessibility
+document.addEventListener('keydown', (e) => {
+  if (!viewStudy.classList.contains('active')) return;
+  if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault();
+    flipCard();
+  } else if (e.code === 'ArrowRight') {
+    nextCard();
+  } else if (e.code === 'ArrowLeft') {
+    prevCard();
+  }
+});
+</script>
+</body>
+</html>
